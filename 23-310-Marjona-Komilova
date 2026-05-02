@@ -1,0 +1,48 @@
+# Loyiha: Mental Wellness Journal (Ruhiy salomatlik jurnali)
+
+## 1-bosqich. Talablar
+
+### 5 ta funksional talab:
+1. **Kundalik qaydlar va kayfiyat:** Foydalanuvchi har kuni o'zining kayfiyatini (mood) belgilashi va kunlik matnli qaydlar kiritishi mumkin bo'lishi kerak.
+2. **Tarix va Kalendar:** Tizim foydalanuvchiga o'tmishdagi yozuvlarni va kayfiyat o'zgarishlari tarixini kalendar ko'rinishida ko'rsatib berishi kerak.
+3. **Qo'shimcha parametrlar:** Foydalanuvchi stress darajasi, uyqu davomiyligi/sifati va minnatdorchilik (gratitude) kabi qo'shimcha hisobot parametrlarini kiritishi mumkin bo'lishi kerak.
+4. **Analitika va hisobotlar:** Tizim kiritilgan ma'lumotlar asosida haftalik yoki oylik hisobotlarni (masalan, kayfiyat grafiklari, eng ko'p ishlatilgan so'zlar) avtomatik shakllantirishi kerak.
+5. **Autentifikatsiya:** Foydalanuvchi ma'lumotlari xavfsizligini ta'minlash uchun tizimga PIN-kod yoki biometrik ma'lumotlar (Face ID / Touch ID) yordamida kirish imkoniyati bo'lishi kerak.
+
+### 5 ta nofunksional talab:
+1. **Maxfiylik va Xavfsizlik (Security):** Barcha shaxsiy yozuvlar ma'lumotlar bazasida shifrlangan (encrypted) holda saqlanishi hamda ruxsatsiz shaxslar kira olmasligi kerak.
+2. **Ishonchlilik (Reliability):** Tizim doimiy ishchi holatda (99.9% uptime) bo'lishi va ehtimoliy xatoliklarda ma'lumotlar yo'qolmasligi uchun muntazam zaxiralanishi (backup) kerak.
+3. **Unumdorlik (Performance):** Ilovaga kirish va yangi qaydlarni saqlash tezligi juda tez bo'lishi (2 soniyadan oshmasligi) kerak.
+4. **Qulaylik (Usability):** Ilova interfeysi psixologik jihatdan tinchlantiruvchi ranglardan iborat bo'lishi hamda har qanday yoshdagi foydalanuvchi uchun intuitiv tushunarli bo'lishi lozim.
+5. **Miqyoslanuvchanlik (Scalability):** Foydalanuvchilar soni keskin ortib ketgan taqdirda ham (masalan, 100,000+ aktiv foydalanuvchi), tizim infratuzilmasi ishlash tezligini yo'qotmay masshtablana olishi kerak.
+
+---
+
+## 2-bosqich. Arxitektura
+
+Tizim uchun 2 ta arxitektura varianti taklifi:
+
+### 1-Variant: Monolit arxitektura (Monolithic Architecture)
+* **Tizim sxemasi:** 
+  `Foydalanuvchi ilovasi (Frontend)  ->  Yagona API Gateway  ->  Monolit Backend (Auth + Qaydlar + Analitika)  ->  Ma'lumotlar bazasi (PostgreSQL)`
+* **Afzalliklari:**
+  - Dastlabki ishlab chiqish, sinovdan o'tkazish (testing) va joylashtirish (deployment) ancha oson va tez.
+  - Barcha modullar bir joyda bo'lgani uchun infratuzilma xarajatlari kamroq bo'ladi.
+  - Ma'lumotlar bazasi bilan ishlash sodda (yagona baza).
+* **Kamchiliklari:**
+  - Tizimga yangi xususiyatlar qo'shilganda kod bazasi juda kattalashib ketadi va boshqarish qiyinlashadi.
+  - Kichik xatolik ham butun dasturning qotib qolishiga yoki ishdan chiqishiga olib kelishi mumkin.
+
+### 2-Variant: Mikroservislar arxitekturasi (Microservices Architecture)
+* **Tizim sxemasi:** 
+  `Foydalanuvchi ilovasi  ->  API Gateway  ->  [Auth Servisi, Qaydlar Servisi, Analitika Servisi]  ->  Har bir servisning o'ziga tegishli mustaqil bazasi`
+* **Afzalliklari:**
+  - Har bir komponent alohida ishlab chiqiladi va alohida ishlaydi. Biri ishdan chiqsa, qolganlari ishlashda davom etadi.
+  - Tizimni masshtablash (scalability) juda oson, qaysi servisga ko'p yuklama tushsa, faqat o'shanigina kuchaytirish mumkin.
+* **Kamchiliklari:**
+  - Boshlang'ich yaratish jarayoni o'ta murakkab va vaqt talab qiladi (Docker, Kubernetes va h.k. kerak).
+  - Kichik loyihalar uchun infratuzilmani saqlash narxi juda qimmatga tushadi.
+
+### Qaysi biri yaxshiroq va nima uchun?
+**Monolit arxitektura yaxshiroq.**
+**Sababi:** "Mental wellness journal" loyihasi hozirgi boshlang'ich bosqichida biznes mantiq unchalik murakkab emas (qaydlar yozish va grafiklarni ko'rish). Loyiha jamoasi uchun MVP (Minimal ishlovchi mahsulot) versiyasini tezda ishga tushirish uchun monolit yondashuv ham arzon, ham oson hisoblanadi. Mikroservislar bunday kichik hajm va funksionallik uchun ortiqcha murakkablik va moliyaviy xarajatni keltirib chiqaradi. Agar kelajakda ilova global miqyosda millionlab foydalanuvchilarga chiqsa, tizimni asta-sekin mikroservislarga o'tkazish mumkin.
